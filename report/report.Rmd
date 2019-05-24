@@ -1,0 +1,512 @@
+---
+title: "report"
+author: "shimajiro"
+date: "2019/5/24"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r, fig.align='center', fig.width=5, fig.height=5}
+source("../functions.R")
+df.train <- read_train_data()
+```
+
+
+## 数値データ
+
+### X1
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X1)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X12
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X12)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X12 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X13
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X13)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X13 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X14
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X14)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X14 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X15
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X15)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X15 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X16
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X16)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X16 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X17
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X17)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X17 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
+```
+
+### X18
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X18)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X18 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X19
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X19)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X19 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X20
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X20)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X20 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X21
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X21)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X21/ X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X22
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X22)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X22 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+### X23
+
+```{r}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  ggplot(aes(X23)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = X23 / X1
+  ) %>%
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2) +
+    scale_x_log10()
+```
+
+## カテゴリ値
+
+```{r}
+df.category_summary <- df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  dplyr::select_if(function(x) { is.character(x) | is.factor(x) | is.logical(x) }) %>%
+  tidyr::gather(key = "variable", value = "category", -y) %>%
+  dplyr::group_by(variable, category) %>%
+  dplyr::summarise(
+    count = n(),
+    success_ratio = mean(y)
+  ) %>%
+  dplyr::mutate(count_ratio = count / sum(count)) %>%
+  dplyr::ungroup()
+```
+
+### 単一変数
+
+#### 構成比
+
+```{r, fig.align='center', fig.width=10, fig.height=4}
+df.category_summary %>%
+  dplyr::mutate(
+    variable = forcats::fct_relevel(variable, stringr::str_c("X", c(2:4, 6:11), sep = "")),
+    category = factor(category, levels = -2:8)
+  ) %>%
+  ggplot(aes(category, count_ratio)) +
+    geom_col(aes(fill = variable), show.legend = F) +
+    scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+    labs(
+      x = NULL,
+      y = NULL
+    ) +
+    facet_grid(. ~ variable, scales = "free_x", space = "free_x")
+```
+
+#### デフォルト率
+
+```{r, fig.align='center', fig.width=10, fig.height=4}
+df.category_summary %>%
+  dplyr::mutate(
+    variable = forcats::fct_relevel(variable, stringr::str_c("X", c(2:4, 6:11), sep = "")),
+    category = factor(category, levels = -2:8)
+  ) %>%
+  ggplot(aes(category, success_ratio)) +
+    geom_col(aes(fill = variable), show.legend = F) +
+    geom_hline(yintercept = mean(dplyr::mutate(df.train, y = (y == "1"))$y), linetype = 2, size = 1.1, alpha = 2/3) +
+    scale_y_continuous(limits = c(0, 1), labels = scales::percent) +
+    labs(
+      x = NULL,
+      y = NULL
+    ) +
+    facet_grid(. ~ variable, scales = "free_x", space = "free_x")
+```
+
+### 2 変数の掛け合わせ
+
+```{r}
+midpoint <- mean(dplyr::mutate(df.train, y=(y=="1"))$y)
+```
+
+
+### X2 ~ X3
+
+```{r, fig.align='center', fig.width=5, fig.height=5}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1")
+  ) %>%
+  dplyr::group_by(X2, X3) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+  ggplot(aes(X2, X3)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
+### X2 ~ X4
+
+```{r, fig.align='center', fig.width=5, fig.height=5}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1")
+  ) %>%
+  dplyr::group_by(X2, X4) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+  ggplot(aes(X2, X4)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
+### X3 ~ X4
+
+```{r, fig.align='center', fig.width=5, fig.height=5}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1")
+  ) %>%
+  dplyr::group_by(X3, X4) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(X3, X4)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
+### X5(年齢)
+
+#### ヒストグラム
+
+```{r, fig.align='center', fig.width=7, fig.height=5}
+df.train %>%
+  ggplot(aes(X5)) +
+    geom_histogram(binwidth = 5, colour = "white")
+```
+
+```{r, fig.align='center', fig.width=7, fig.height=5}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  dplyr::mutate(
+    age_segment = dplyr::case_when(
+      X5 <= 20 ~ "lte20",
+      X5 <= 30 ~ "lte30",
+      X5 <= 40 ~ "lte40",
+      X5 <= 50 ~ "lte50",
+      X5 <= 60 ~ "lte60",
+      X5 <= 70 ~ "lte70",
+      X5 <= 80 ~ "lte80",
+      T ~ "other"
+    ) %>% forcats::fct_relevel(stringr::str_c("lte", seq(30, 80, 10)))
+  ) %>%
+  dplyr::group_by(age_segment) %>%
+  dplyr::summarise(
+    n = n(),
+    default_ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(age_segment, default_ratio)) +
+    geom_point(aes(size = n)) +
+    scale_size_area() +
+    geom_line(aes(group = 1)) +
+    geom_hline(yintercept = midpoint, linetype = 2, size = 1.1, colour = "red") +
+    scale_y_continuous(labels = scales::percent, limits = c(0, 0.4))
+```
+
+### X2 ~ X5
+
+```{r, fig.align='center', fig.width=7, fig.height=5}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  dplyr::mutate(
+    age_segment = dplyr::case_when(
+      X5 <= 20 ~ "lte20",
+      X5 <= 30 ~ "lte30",
+      X5 <= 40 ~ "lte40",
+      X5 <= 50 ~ "lte50",
+      X5 <= 60 ~ "lte60",
+      X5 <= 70 ~ "lte70",
+      X5 <= 80 ~ "lte80",
+      T ~ "other"
+    ) %>% forcats::fct_relevel(stringr::str_c("lte", seq(30, 80, 10)))
+  ) %>%
+  dplyr::group_by(X2, age_segment) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(age_segment, X2)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
+### X3 ~ X5
+
+```{r, fig.align='center', fig.width=7, fig.height=5}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  dplyr::mutate(
+    age_segment = dplyr::case_when(
+      X5 <= 20 ~ "lte20",
+      X5 <= 30 ~ "lte30",
+      X5 <= 40 ~ "lte40",
+      X5 <= 50 ~ "lte50",
+      X5 <= 60 ~ "lte60",
+      X5 <= 70 ~ "lte70",
+      X5 <= 80 ~ "lte80",
+      T ~ "other"
+    ) %>% forcats::fct_relevel(stringr::str_c("lte", seq(30, 80, 10)))
+  ) %>%
+  dplyr::group_by(X3, age_segment) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(age_segment, X3)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
+### X4 ~ X5
+
+```{r, fig.align='center', fig.width=7, fig.height=5}
+df.train %>%
+  dplyr::mutate(y = (y == "1")) %>%
+  dplyr::mutate(
+    age_segment = dplyr::case_when(
+      X5 <= 20 ~ "lte20",
+      X5 <= 30 ~ "lte30",
+      X5 <= 40 ~ "lte40",
+      X5 <= 50 ~ "lte50",
+      X5 <= 60 ~ "lte60",
+      X5 <= 70 ~ "lte70",
+      X5 <= 80 ~ "lte80",
+      T ~ "other"
+    ) %>% forcats::fct_relevel(stringr::str_c("lte", seq(30, 80, 10)))
+  ) %>%
+  dplyr::group_by(X4, age_segment) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(age_segment, X4)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
