@@ -2,7 +2,7 @@ library(tidyverse)
 
 read_train_data <- function() {
   readr::read_csv(
-    file = "/Users/shimajiro/prog/R/projects/ProbSpace_credit_default_risk/data/train_data.csv",
+    file = "data/input/train_data.csv",
     col_types = cols(
       .default = col_integer(),
 
@@ -25,7 +25,7 @@ read_train_data <- function() {
 
 read_test_data <- function() {
   readr::read_csv(
-    file = "/Users/shimajiro/prog/R/projects/ProbSpace_credit_default_risk/data/test_data.csv",
+    file = "data/input/test_data.csv",
     col_types = cols(
       .default = col_integer(),
 
