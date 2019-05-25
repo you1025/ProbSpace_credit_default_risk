@@ -82,7 +82,6 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
   )
 
 ## Model 作成
-## Model 作成
 clf <- parsnip::rand_forest(
   mode = "classification",
   mtry = parsnip::varying(),
@@ -97,10 +96,10 @@ clf <- parsnip::rand_forest(
 
 # ハイパーパラメータ
 grid.params <- dials::grid_regular(
-  dials::mtry %>% dials::range_set(c(10, 30)),
+  dials::mtry %>% dials::range_set(c(10, 20)),
   dials::min_n %>% dials::range_set(c(30, 40)),
-  dials::trees %>% dials::range_set(c(500, 1000)),
-  levels = 2
+  dials::trees %>% dials::range_set(c(1250, 1750)),
+  levels = 3
 )
 models <- grid.params %>%
   merge(clf, .)
@@ -109,8 +108,9 @@ models <- grid.params %>%
 # V-Fold split
 cv <- rsample::vfold_cv(data = df.train, v = 5, strata = "y")
 
-cluster <- parallel::detectCores() %>%
-  parallel::makeCluster()
+#cluster <- parallel::detectCores() %>%
+#  parallel::makeCluster()
+cluster <- parallel::makeCluster(12)
 doParallel::registerDoParallel(cluster)
 
 lst.scores <- foreach::foreach(model = models, .packages = c("tidyverse", "recipes")) %dopar% {
@@ -142,6 +142,9 @@ lst.scores <- foreach::foreach(model = models, .packages = c("tidyverse", "recip
     dplyr::summarise(mean_accuracy = mean(accuracy))
 }
 
+doParallel::stopImplicitCluster()
+
+
 df.param_scores <- grid.params %>%
   dplyr::mutate(
     accuracy = purrr::map_dbl(lst.scores, ~ .$mean_accuracy)
@@ -151,5 +154,6 @@ df.param_scores %>%
   View
 
 
+# mtry: 13, min_n: 35, trees: 1500, accuracy: 0.8186667
 # mtry: 10, min_n: 30, trees: 1000, accuracy: 0.8188519
 # mtry: 10, min_n: 30, trees:  500, accuracy: 0.8186296
