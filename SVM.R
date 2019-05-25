@@ -6,10 +6,10 @@ set.seed(1025)
 
 source("./functions.R")
 
-#df.train <- read_train_data()
-df.train <- read_train_data() %>%
-  rsample::initial_split(prop = 1/3, strata = "y") %>%
-  rsample::training()
+df.train <- read_train_data()
+#df.train <- read_train_data() %>%
+#  rsample::initial_split(prop = 1/3, strata = "y") %>%
+#  rsample::training()
 #summary(df.train)
 
 # 前処理の定義
@@ -108,10 +108,10 @@ clf <- parsnip::svm_rbf(
   )
 
 # ハイパーパラメータ
-grid.params <- dials::grid_regular(
-  dials::cost      %>% dials::range_set(c(0.85,  1.15)),
-  dials::rbf_sigma %>% dials::range_set(c(-1.15, -0.85)),
-  levels = 3
+grid.params <- dials::grid_random(
+  dials::cost      %>% dials::range_set(c(0.80,  0.85)),
+  dials::rbf_sigma %>% dials::range_set(c(-1.10, -1.00)),
+  size = 10
 )
 models <- grid.params %>%
   merge(clf, .)
@@ -165,3 +165,6 @@ df.param_scores <- grid.params %>%
 df.param_scores %>%
   View
 
+
+# cost: 1.771535, rbf_sigma: 0.07943282, accuracy: 0.8265554
+# cost: 1.802501, rbf_sigma: 0.07079458, accuracy: 0.8264445
