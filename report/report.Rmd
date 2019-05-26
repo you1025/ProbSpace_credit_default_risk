@@ -268,6 +268,23 @@ df.train %>%
     scale_x_log10()
 ```
 
+### X18〜X23 の和
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    ratio = (X18 + X19 + X20 + X21 + X22 + X23) / X1
+  ) %>%
+  #summary()
+  ggplot(aes(ratio)) +
+    geom_density(aes(fill = y), alpha = 1/2)
++
+    scale_x_log10()
+```
+
+
+
 ## カテゴリ値
 
 ```{r}
@@ -510,3 +527,29 @@ df.train %>%
     geom_label(aes(label = scales::percent(ratio))) +
     scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
 ```
+
+### X6 ~ X7
+
+```{r}
+df.train %>%
+  dplyr::mutate(
+    y = (y == "1"),
+    X6 = forcats::fct_collapse(X6,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X7 = forcats::fct_collapse(X7,
+      others = c("3", "4", "5", "6", "7", "8")
+    )
+  ) %>%
+  dplyr::group_by(X6, X7) %>%
+  dplyr::summarise(
+    n = n(),
+    ratio = mean(y)
+  ) %>%
+
+  ggplot(aes(X6, X7)) +
+    geom_tile(aes(fill = ratio), colour = "black") +
+    geom_label(aes(label = scales::percent(ratio))) +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = midpoint)
+```
+
