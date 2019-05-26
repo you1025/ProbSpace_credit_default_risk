@@ -86,25 +86,31 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
     flg_X4_3__age_segment_lte60 = ((X4 == "3") & (age_segment == "lte60")) %>% as.integer()
   ) %>%
 
-  # X6~X11 の少数項目をまとめる
+  # X6~X11 の項目をまとめる
   recipes::step_mutate(
     # X6〜X11
     X6 = forcats::fct_collapse(X6,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     ),
     X7 = forcats::fct_collapse(X7,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     ),
     X8 = forcats::fct_collapse(X8,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     ),
     X9 = forcats::fct_collapse(X9,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     ),
     X10 = forcats::fct_collapse(X10,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     ),
     X11 = forcats::fct_collapse(X11,
+      "0" = c("-2", "-1", "0"),
       others = c("3", "4", "5", "6", "7", "8")
     )
   ) %>%
@@ -127,7 +133,8 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
 
   recipes::step_zv(all_numeric())
 
-# juice(prep(rec)) %>% ncol() # 353
+# juice(prep(rec)) %>%
+#   ncol() # 353
 #   summary()
 
 # ### 不均衡の解消 ###
@@ -150,37 +157,37 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
 #       data = x,
 #       label = y,
 #       nfold = 5,
-#       eta = 0.01,
+#       eta = 0.1,
 # 
-#       colsample_bytree = 0.121813,
+#       colsample_bytree = 50 / 150,
 # 
-#       min_child_weight = 19,
-#       max_depth = 1,
-#       gamma = 0.875,
+#       # min_child_weight = 19,
+#       # max_depth = 1,
+#       # gamma = 0.875,
 # 
 #       seed = 42,
 #       nrounds = 2500
 # #      nrounds = 500
 #     )
 #   }
-# # 最適な木の数は 2021 本 => trees
+# # 最適な木の数は 71 本 => trees
 
 
 # Model 作成
 clf <- parsnip::boost_tree(
   mode = "classification",
-  learn_rate = 0.01,
-  trees = 2021,
-  mtry = 45,
+  learn_rate = 0.1,
+  trees = 71,
+  mtry = 51,
 #  mtry = parsnip::varying(),
 
   # これはあまり気にしない方針で
   sample_size = 1.0,
+#  sample_size = parsnip::varying()
 
   # min_n = 19,
   # tree_depth = 1,
   # loss_reduction = 0.875
-#  sample_size = parsnip::varying()
   min_n = parsnip::varying(),
   tree_depth = parsnip::varying(),
   loss_reduction = parsnip::varying()
@@ -194,15 +201,15 @@ clf <- parsnip::boost_tree(
 
 # ハイパーパラメータ
 grid.params <- dials::grid_regular(
-  # dials::mtry %>% dials::range_set(c(45, 47)),       # colsample_bytree
+#  dials::mtry %>% dials::range_set(c(49, 51)),       # colsample_bytree
 
   # subsample
   # dials::sample_size %>%
   #   dials::range_set(c(0, 3000)),
 
-  dials::min_n          %>% dials::range_set(c(28, 30)),          # min_child_weight
+  dials::min_n          %>% dials::range_set(c(20, 30)),          # min_child_weight
   dials::tree_depth     %>% dials::range_set(c(1, 3)),          # max_depth
-  dials::loss_reduction %>% dials::range_set(c(0.8875, 0.8925)),    # gamma
+  dials::loss_reduction %>% dials::range_set(c(0.5, 1.0)),    # gamma
   levels = 3
 )
 models <- grid.params %>%
@@ -258,114 +265,89 @@ df.param_scores %>%
   View
 
 
-# mtry: 45, min_n: xx, tree_depth: x, loss_reduction: xxx, accuracy: xxx
+# mtry: 51, min_n: xx, tree_depth: x, loss_reduction: xxx, accuracy: xxx
 
-# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.890,  accuracy: 0.8197408
-# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.890,  accuracy: 0.8198889
-# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.885,  accuracy: 0.8198519
-# mtry: 45, min_n: 27, tree_depth: 1, loss_reduction: 0.880,  accuracy: 0.8201111
-# mtry: 45, min_n: 23, tree_depth: 1, loss_reduction: 0.875,  accuracy: 0.8200741
-# mtry: 45, min_n: 21, tree_depth: 1, loss_reduction: 0.8800, accuracy: 0.8198889
-# mtry: 45, min_n: 20, tree_depth: 1, loss_reduction: 0.8775, accuracy: 0.8198148
-# mtry: 45, min_n: 19, tree_depth: 1, loss_reduction: 0.875,  accuracy: 0.8199259
-# mtry: 45, min_n: 19, tree_depth: 1, loss_reduction: 0.880,  accuracy: 0.8198889
-# mtry: 45, accuracy: 0.8198889
-# mtry: 45, accuracy: 0.8195556
-# mtry: 44, accuracy: 0.8198519
-# eta: 0.01
-# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.875, accuracy: 0.8204075
-# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.875, accuracy: 0.8203334
-# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.880, accuracy: 0.8202222
-# mtry: 43, min_n: 15, tree_depth: 2, loss_reduction: 0.875, accuracy: 0.8199632
-# mtry: 43, min_n: 11, tree_depth: 1, loss_reduction: 0.900, accuracy: 0.8201853
-# mtry: 43, min_n:  9, tree_depth: 1, loss_reduction: 0.925, accuracy: 0.8204445
-# mtry: 43, min_n:  8, tree_depth: 2, loss_reduction: 0.95,  accuracy: 0.8196298
-# mtry: 43, min_n:  7, tree_depth: 3, loss_reduction: 1.0,   accuracy: 0.8193334
-# mtry: 43, accuracy: 0.8190371
-# mtry: 42, accuracy: 0.8188889
-# mtry: 45, accuracy: 0.8187408
-# mtry: 40, accuracy: 0.8185556 # 何でや・・・orz
-# mtry: 50, accuracy: 0.8203332
+# mtry: 51, min_n: 20, tree_depth: 2, loss_reduction: 0.5, accuracy: 0.8181481
 
 
-# ### CV: 最適な木の数を検証 ###
-rec %>%
-  recipes::prep() %>%
-  recipes::juice() %>%
-  {
-    df.data <- (.)
-    y <- as.integer(df.data$y) - 1
-    x <- df.data %>% dplyr::select(-y) %>% as.matrix()
-    xgboost::xgb.cv(
-      param = list(
-        "objective" = "binary:logistic",
-        "eval_metric" = "error"
-      ),
-      data = x,
-      label = y,
-      nfold = 5,
-      eta = 0.01,
-
-      subsample = 1.0,
-
-      colsample_bytree = 45 / 353,
-
-      min_child_weight = 29,
-      max_depth = 1,
-      gamma = 0.890,
-
-      seed = 42,
-      nrounds = 2000
-    )
-  }
-# 1340
-
-
-df.train.all <- read_train_data()
-clf.best.fitted <- parsnip::boost_tree(
-  mode = "classification",
-  learn_rate = 0.01,
-  trees = 1340,
-  mtry = 45,
-  sample_size = 1.0,
-  min_n = 29,
-  tree_depth = 1,
-  loss_reduction = 0.890
-) %>%
-  parsnip::set_engine(
-    engine = "xgboost",
-    # scale_pos_weight = weights,
-    seed = 42
-  ) %>%
-  parsnip::fit(y ~ ., recipes::prep(rec) %>% recipes::bake(df.train.all))
-
-df.test <- read_test_data()
-df.test %>% {
-  df.test <- (.)
-  recipes::prep(rec) %>%
-    recipes::bake(df.test)
-} %>% {
-  df.test.baked <- (.)
-  df.test.baked %>%
-    dplyr::mutate(
-      id = 0:(nrow(df.test.baked) - 1),
-      pred = parsnip::predict_class(clf.best.fitted, .)
-    ) %>%
-    dplyr::select(
-      ID = id,
-      Y = pred
-    )
-} %>% {
-  df.data = (.)
-
-  # ファイルパスの作成
-  dtnow <- lubridate::now(tzone = "Asia/Tokyo") %>% format("%Y%m%d%H%M%S")
-  filename <- stringr::str_c("output_xgb_", dtnow, ".csv", sep = "")
-  path <- stringr::str_c("data/output/", filename, sep = "")
-
-  readr::write_csv(
-    df.data,
-    path = path,
-    col_names = T
-  )
-}
+# # ### CV: 最適な木の数を検証 ###
+# rec %>%
+#   recipes::prep() %>%
+#   recipes::juice() %>%
+#   {
+#     df.data <- (.)
+#     y <- as.integer(df.data$y) - 1
+#     x <- df.data %>% dplyr::select(-y) %>% as.matrix()
+#     xgboost::xgb.cv(
+#       param = list(
+#         "objective" = "binary:logistic",
+#         "eval_metric" = "error"
+#       ),
+#       data = x,
+#       label = y,
+#       nfold = 5,
+#       eta = 0.01,
+# 
+#       subsample = 1.0,
+# 
+#       colsample_bytree = 45 / 353,
+# 
+#       min_child_weight = 29,
+#       max_depth = 1,
+#       gamma = 0.890,
+# 
+#       seed = 42,
+#       nrounds = 2000
+#     )
+#   }
+# # 1340
+# 
+# 
+# df.train.all <- read_train_data()
+# clf.best.fitted <- parsnip::boost_tree(
+#   mode = "classification",
+#   learn_rate = 0.01,
+#   trees = 1340,
+#   mtry = 45,
+#   sample_size = 1.0,
+#   min_n = 29,
+#   tree_depth = 1,
+#   loss_reduction = 0.890
+# ) %>%
+#   parsnip::set_engine(
+#     engine = "xgboost",
+#     # scale_pos_weight = weights,
+#     seed = 42
+#   ) %>%
+#   parsnip::fit(y ~ ., recipes::prep(rec) %>% recipes::bake(df.train.all))
+# 
+# df.test <- read_test_data()
+# df.test %>% {
+#   df.test <- (.)
+#   recipes::prep(rec) %>%
+#     recipes::bake(df.test)
+# } %>% {
+#   df.test.baked <- (.)
+#   df.test.baked %>%
+#     dplyr::mutate(
+#       id = 0:(nrow(df.test.baked) - 1),
+#       pred = parsnip::predict_class(clf.best.fitted, .)
+#     ) %>%
+#     dplyr::select(
+#       ID = id,
+#       Y = pred
+#     )
+# } %>% {
+#   df.data = (.)
+# 
+#   # ファイルパスの作成
+#   dtnow <- lubridate::now(tzone = "Asia/Tokyo") %>% format("%Y%m%d%H%M%S")
+#   filename <- stringr::str_c("output_xgb_", dtnow, ".csv", sep = "")
+#   path <- stringr::str_c("data/output/", filename, sep = "")
+# 
+#   readr::write_csv(
+#     df.data,
+#     path = path,
+#     col_names = T
+#   )
+# }
