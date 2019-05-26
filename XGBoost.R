@@ -46,6 +46,8 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
     X21_ratio = X21 / X1,
     X22_ratio = X22 / X1,
     X23_ratio = X23 / X1,
+
+    pre_paid_ratio = (X18 + X19 + X20 + X21 + X22 + X23) / X1,
     
     # X2 ~ X3
     flg_X2_1__X3_3 = ((X2 == "1") & (X3 == "3")) %>% as.integer(),
@@ -81,16 +83,55 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
     #    flg_X4_0__age_segment_lte40_lte60 = (X4 == "0") & (age_segment %in% c("lte40", "lte60")),
     #    flg_X4_1__age_segment_lte80 = (X4 == "1") & (age_segment == "lte80"),
     flg_X4_3__age_segment_lte30 = ((X4 == "3") & (age_segment == "lte30")) %>% as.integer(),
-    flg_X4_3__age_segment_lte60 = ((X4 == "3") & (age_segment == "lte60")) %>% as.integer(),
-    
-    role = "flags"
+    flg_X4_3__age_segment_lte60 = ((X4 == "3") & (age_segment == "lte60")) %>% as.integer()
   ) %>%
-  
+
+  # X6~X11 の少数項目をまとめる
+  recipes::step_mutate(
+    # X6〜X11
+    X6 = forcats::fct_collapse(X6,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X7 = forcats::fct_collapse(X7,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X8 = forcats::fct_collapse(X8,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X9 = forcats::fct_collapse(X9,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X10 = forcats::fct_collapse(X10,
+      others = c("3", "4", "5", "6", "7", "8")
+    ),
+    X11 = forcats::fct_collapse(X11,
+      others = c("3", "4", "5", "6", "7", "8")
+    )
+  ) %>%
+
+  # 不要項目の除去
+  recipes::step_rm(
+    age_segment
+  ) %>%
+
   # min-max scaling: 0〜1
   recipes::step_range(all_numeric(), min = 0, max = 1) %>%
   
   # カテゴリ値のダミー変数化
-  recipes::step_dummy(all_nominal(), -all_numeric(), -all_outcomes(), role = "dummies")
+  recipes::step_dummy(all_nominal(), -all_numeric(), -all_outcomes(), role = "dummies") %>%
+
+  # X6~X11 の交互作用を追加
+  recipes::step_interact(
+    terms = ~ (matches("^X6") + matches("^X7") + matches("^X8") + matches("^X9") + matches("^X10") + matches("^X11"))^2
+  ) %>%
+
+  recipes::step_zv(all_numeric())
+
+# juice(prep(rec)) %>% ncol() # 353
+#   summary()
+
+# ### 不均衡の解消 ###
+# weight <- 1 / mean(as.numeric(df.train$y) - 1)
 
 
 # ### CV: 最適な木の数を検証 ###
@@ -109,54 +150,59 @@ rec <- recipes::recipe(y ~ ., data = df.train) %>%
 #       data = x,
 #       label = y,
 #       nfold = 5,
-#       eta = 0.1,
+#       eta = 0.01,
 # 
-#       # max_depth = 6,
-#       # colsample_bytree = 0.37,
-#       # min_child_weight = 3,
-#       # gamma = 0.03,
+#       colsample_bytree = 0.121813,
+# 
+#       min_child_weight = 19,
+#       max_depth = 1,
+#       gamma = 0.875,
 # 
 #       seed = 42,
-# #      nrounds = 2000
-#       nrounds = 200
+#       nrounds = 2500
+# #      nrounds = 500
 #     )
 #   }
-# # 最適な木の数は 48 本 => trees
+# # 最適な木の数は 2021 本 => trees
 
 
 # Model 作成
 clf <- parsnip::boost_tree(
   mode = "classification",
-  learn_rate = 0.1,
-  trees = 48,
-  mtry = 47,
+  learn_rate = 0.01,
+  trees = 2021,
+  mtry = 45,
 #  mtry = parsnip::varying(),
 
-  sample_size = round(nrow(df.train) * 0.9),
-  # min_n = 2,
-  # tree_depth = 6,
-  # loss_reduction = 0,
-  # sample_size = parsnip::varying(),
+  # これはあまり気にしない方針で
+  sample_size = 1.0,
+
+  # min_n = 19,
+  # tree_depth = 1,
+  # loss_reduction = 0.875
+#  sample_size = parsnip::varying()
   min_n = parsnip::varying(),
   tree_depth = parsnip::varying(),
   loss_reduction = parsnip::varying()
 ) %>%
-  parsnip::set_engine(engine = "xgboost", seed = 42)
+  parsnip::set_engine(
+    engine = "xgboost",
+#    scale_pos_weight = 4.504505, # 精度がガタ落ち orz
+    seed = 42
+  )
 
 
 # ハイパーパラメータ
 grid.params <- dials::grid_regular(
-#  dials::mtry %>% dials::range_set(c(43, 47)),       # colsample_bytree
+  # dials::mtry %>% dials::range_set(c(45, 47)),       # colsample_bytree
 
-  # # subsample: range の設定だけだとダメだった
+  # subsample
   # dials::sample_size %>%
-  #   dials::range_set(c(5, 10)),
-  # # %>%
-  # #   dials::value_set(seq(0.5, 1, 0.1)),
+  #   dials::range_set(c(0, 3000)),
 
-  dials::min_n          %>% dials::range_set(c(2, 2)),          # min_child_weight
-  dials::tree_depth     %>% dials::range_set(c(5, 5)),          # max_depth
-  dials::loss_reduction %>% dials::range_set(c(0.1, 0.1)),    # gamma
+  dials::min_n          %>% dials::range_set(c(28, 30)),          # min_child_weight
+  dials::tree_depth     %>% dials::range_set(c(1, 3)),          # max_depth
+  dials::loss_reduction %>% dials::range_set(c(0.8875, 0.8925)),    # gamma
   levels = 3
 )
 models <- grid.params %>%
@@ -212,7 +258,114 @@ df.param_scores %>%
   View
 
 
+# mtry: 45, min_n: xx, tree_depth: x, loss_reduction: xxx, accuracy: xxx
 
-# mtry: 45, accuracy: 0.8188148
-# mtry: 40, accuracy: 0.8174445
-# mtry: 30, accuracy: 0.8162963
+# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.890,  accuracy: 0.8197408
+# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.890,  accuracy: 0.8198889
+# mtry: 45, min_n: 29, tree_depth: 1, loss_reduction: 0.885,  accuracy: 0.8198519
+# mtry: 45, min_n: 27, tree_depth: 1, loss_reduction: 0.880,  accuracy: 0.8201111
+# mtry: 45, min_n: 23, tree_depth: 1, loss_reduction: 0.875,  accuracy: 0.8200741
+# mtry: 45, min_n: 21, tree_depth: 1, loss_reduction: 0.8800, accuracy: 0.8198889
+# mtry: 45, min_n: 20, tree_depth: 1, loss_reduction: 0.8775, accuracy: 0.8198148
+# mtry: 45, min_n: 19, tree_depth: 1, loss_reduction: 0.875,  accuracy: 0.8199259
+# mtry: 45, min_n: 19, tree_depth: 1, loss_reduction: 0.880,  accuracy: 0.8198889
+# mtry: 45, accuracy: 0.8198889
+# mtry: 45, accuracy: 0.8195556
+# mtry: 44, accuracy: 0.8198519
+# eta: 0.01
+# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.875, accuracy: 0.8204075
+# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.875, accuracy: 0.8203334
+# mtry: 43, min_n: 19, tree_depth: 1, loss_reduction: 0.880, accuracy: 0.8202222
+# mtry: 43, min_n: 15, tree_depth: 2, loss_reduction: 0.875, accuracy: 0.8199632
+# mtry: 43, min_n: 11, tree_depth: 1, loss_reduction: 0.900, accuracy: 0.8201853
+# mtry: 43, min_n:  9, tree_depth: 1, loss_reduction: 0.925, accuracy: 0.8204445
+# mtry: 43, min_n:  8, tree_depth: 2, loss_reduction: 0.95,  accuracy: 0.8196298
+# mtry: 43, min_n:  7, tree_depth: 3, loss_reduction: 1.0,   accuracy: 0.8193334
+# mtry: 43, accuracy: 0.8190371
+# mtry: 42, accuracy: 0.8188889
+# mtry: 45, accuracy: 0.8187408
+# mtry: 40, accuracy: 0.8185556 # 何でや・・・orz
+# mtry: 50, accuracy: 0.8203332
+
+
+# ### CV: 最適な木の数を検証 ###
+rec %>%
+  recipes::prep() %>%
+  recipes::juice() %>%
+  {
+    df.data <- (.)
+    y <- as.integer(df.data$y) - 1
+    x <- df.data %>% dplyr::select(-y) %>% as.matrix()
+    xgboost::xgb.cv(
+      param = list(
+        "objective" = "binary:logistic",
+        "eval_metric" = "error"
+      ),
+      data = x,
+      label = y,
+      nfold = 5,
+      eta = 0.01,
+
+      subsample = 1.0,
+
+      colsample_bytree = 45 / 353,
+
+      min_child_weight = 29,
+      max_depth = 1,
+      gamma = 0.890,
+
+      seed = 42,
+      nrounds = 2000
+    )
+  }
+# 1340
+
+
+df.train.all <- read_train_data()
+clf.best.fitted <- parsnip::boost_tree(
+  mode = "classification",
+  learn_rate = 0.01,
+  trees = 1340,
+  mtry = 45,
+  sample_size = 1.0,
+  min_n = 29,
+  tree_depth = 1,
+  loss_reduction = 0.890
+) %>%
+  parsnip::set_engine(
+    engine = "xgboost",
+    # scale_pos_weight = weights,
+    seed = 42
+  ) %>%
+  parsnip::fit(y ~ ., recipes::prep(rec) %>% recipes::bake(df.train.all))
+
+df.test <- read_test_data()
+df.test %>% {
+  df.test <- (.)
+  recipes::prep(rec) %>%
+    recipes::bake(df.test)
+} %>% {
+  df.test.baked <- (.)
+  df.test.baked %>%
+    dplyr::mutate(
+      id = 0:(nrow(df.test.baked) - 1),
+      pred = parsnip::predict_class(clf.best.fitted, .)
+    ) %>%
+    dplyr::select(
+      ID = id,
+      Y = pred
+    )
+} %>% {
+  df.data = (.)
+
+  # ファイルパスの作成
+  dtnow <- lubridate::now(tzone = "Asia/Tokyo") %>% format("%Y%m%d%H%M%S")
+  filename <- stringr::str_c("output_xgb_", dtnow, ".csv", sep = "")
+  path <- stringr::str_c("data/output/", filename, sep = "")
+
+  readr::write_csv(
+    df.data,
+    path = path,
+    col_names = T
+  )
+}
