@@ -1,8 +1,9 @@
 library(tidyverse)
+library(here)
 
 read_train_data <- function() {
   readr::read_csv(
-    file = "~/ProbSpace_credit_default_risk/data/input/train_data.csv",
+    file = here("data", "input", "train_data.csv"),
     col_types = cols(
       .default = col_integer(),
 
@@ -25,7 +26,7 @@ read_train_data <- function() {
 
 read_test_data <- function() {
   readr::read_csv(
-    file = "data/input/test_data.csv",
+    file = here("data", "input", "test_data.csv"),
     col_types = cols(
       .default = col_integer(),
 
