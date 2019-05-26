@@ -278,8 +278,7 @@ df.train %>%
   ) %>%
   #summary()
   ggplot(aes(ratio)) +
-    geom_density(aes(fill = y), alpha = 1/2)
-+
+    geom_density(aes(fill = y), alpha = 1/2) +
     scale_x_log10()
 ```
 
